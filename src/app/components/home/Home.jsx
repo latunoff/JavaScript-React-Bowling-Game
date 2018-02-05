@@ -11,6 +11,7 @@ class Home extends Component {
         super(props);
         this.ball = 0;
         this.counter = null;
+        this.throwLocked = false;
     }
 
     componentWillMount() {
@@ -20,13 +21,12 @@ class Home extends Component {
             frame: 1,
             frames: 10,
             scores: [],
-            throw: 0,
-            scorenow: 0,
-            scoreroll: 0,
-            scoreframe: 0,
             score: 0,
+            scorenow: 0,
+            bar: 0,
             strike: false,
-            spare: false
+            spare: false,
+            table: []
         };
         this.setState(this.stat);
     }
@@ -56,52 +56,50 @@ class Home extends Component {
 
         this.ball = new Ball(context, 320, 440, 30, "black");
         this.ball.setBall();
+        this.throwLocked = false;
 
         document.addEventListener("mousedown", this.gameInit, false);
     };
 
     gameStart()
     {
-        this.updateLevel();
-
         let offset = Math.floor(Math.random() * 60) -30;
         this.ball.kickBall(320 + offset, 245);
+        this.throwLocked = true;
+        this.stat.strike = false;
+        this.stat.spare = false;
+        this.setState(this.stat);
         
-        setTimeout(() => this.scoreCount(offset), 2000);
-        setTimeout(() => this.ball.setBall(320, 440), 1000);    
+        setTimeout(() => this.scoreCount(offset), 2800);
+        setTimeout(() => this.ball.setBall(320, 440), 3000);
     }
 
     scoreCount(offset)
     {
-        this.counter.addThrow(10 - Math.abs(Math.floor(offset/3)));
+        let throwScore = 10 - Math.abs(Math.floor(offset/3));
+        if (this.stat.roll == 2 && throwScore + this.counter.throws[this.counter.throws.length-1] > 10)
+            throwScore = 10 - this.counter.throws[this.counter.throws.length-1];
+        //console.log(throwScore);
+        this.stat.scorenow = throwScore;
+        this.counter.addThrow(throwScore);
+        this.stat.table.push(throwScore);
 
         this.stat.score = this.counter.getScore();
 
-        this.updateLevel();
-
-        this.setState(this.stat);
-    }
-
-    scoreCount1(offset)
-    {
-        this.stat.scoreroll = 10 - Math.abs(Math.floor(offset/3));
-
-        this.stat.roll == 1 ? this.stat.scoreframe = this.stat.scoreroll : this.stat.scoreframe += this.stat.scoreroll;
-        if (this.stat.strike) {
-            
-            this.stat.score += this.stat.scorenow + 10;
-            this.stat.strike = false;
-        }
-        if (this.stat.scorenow == 10 && this.stat.strike)
+        if (this.stat.roll == 2 && throwScore + this.counter.throws[this.counter.throws.length-1] == 10)
             this.stat.spare = true;
-        // fix strike            
-        if (this.stat.scorenow == 10 && this.stat.roll == 1) {
+
+        if (this.stat.roll == 1 && throwScore == 10) {
+            this.updateLevel();
+            this.counter.addThrow(0);
+            this.stat.table.push('/');
             this.stat.strike = true;
-            this.stat.roll = 1;
-            this.stat.frame++;
         }
 
-        this.updateLevel();
+        if (!(this.stat.roll == 2 && this.stat.frame == this.stat.frames)) {
+            this.updateLevel();
+            this.throwLocked = false;
+        }
 
         this.setState(this.stat);
     }
@@ -112,16 +110,17 @@ class Home extends Component {
             this.stat.roll++;
         else 
             { this.stat.frame++; this.stat.roll = 1;}
-        if (this.stat.frame == this.stat.frames)
+        if (this.stat.frame > this.stat.frames)
             { this.stat.roll = this.stat.frame = 1; }
+        this.stat.bar++;
         this.setState(this.stat);
     }
 
     render() {
       return <div className="container home">
                 <h1>Bowling Game</h1>
-                <Stat className="info" stat={this.stat}></Stat>
-                <button onClick={() => this.gameStart()}>Start</button>
+                <Stat className="stat" stat={this.stat}></Stat>
+                <button type="button" className="btn btn-default btn-lg" onClick={() => this.gameStart()} disabled={this.throwLocked}>Throw!</button>
                 <Canvas />
             </div>
     }

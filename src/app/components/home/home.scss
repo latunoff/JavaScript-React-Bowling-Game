@@ -1,6 +1,10 @@
 .home {
-
   h1 {
     color: $light-blue;
+  }
+  .stat {
+    .table span { border-top: #999 1px solid; border-bottom: #999 1px solid; padding: 3px 5px; width: 30px; }
+    .table span:nth-child(odd) {border-left: #999 1px solid; }
+    .table span:last-child { border-right: #999 1px solid; }
   }
 }
