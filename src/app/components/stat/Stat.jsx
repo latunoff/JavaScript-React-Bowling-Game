@@ -16,7 +16,7 @@ class Stat extends React.Component{
                     </div>
                 </div> 
                 <p>Statistic:</p>
-                <div className="table">Table: {this.props.stat.table.map((item) => <span>{item}</span>)}</div>
+                <div className="table">Table: {this.props.stat.table.map((item, idx) => <span key={idx}>{item}</span>)}</div>
                 <div>
                     <div>Frame: {this.props.stat.frame} / {this.props.stat.frames}</div>
                     <div>Roll: {this.props.stat.roll} / {this.props.stat.rolls}</div>

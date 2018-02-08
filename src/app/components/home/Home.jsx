@@ -3,13 +3,14 @@ import { connect } from 'react-redux';
 import Stat, { StatCount } from '../stat/Stat';
 import Canvas from '../canvas/Canvas';
 
-import { setSkittles } from '../../elements/skittle';
-import { setBall, Ball } from '../../elements/ball';
+import { Skittles } from '../../elements/skittle';
+import { Ball } from '../../elements/ball';
 
 class Home extends Component {
     constructor(props) {
         super(props);
-        this.ball = 0;
+        this.skittles = null;
+        this.ball = null;
         this.counter = null;
         this.throwLocked = false;
     }
@@ -52,13 +53,14 @@ class Home extends Component {
         context.stroke();
         context.closePath();
 
-        setSkittles(context, 243, 40, 25, "rgba(200, 200, 200)");
+        this.skittles = new Skittles(context, 243, 40, 25, "rgba(200, 200, 200)");
+        this.skittles.setSkittles();
 
         this.ball = new Ball(context, 320, 440, 30, "black");
         this.ball.setBall();
         this.throwLocked = false;
 
-        document.addEventListener("mousedown", this.gameInit, false);
+        //document.addEventListener("mousedown", this.gameInit, false);
     };
 
     gameStart()
@@ -71,7 +73,7 @@ class Home extends Component {
         this.setState(this.stat);
         
         setTimeout(() => this.scoreCount(offset), 2800);
-        setTimeout(() => this.ball.setBall(320, 440), 3000);
+        setTimeout(() => this.ball.setBall(320, 440), 3300);
     }
 
     scoreCount(offset)
@@ -84,15 +86,22 @@ class Home extends Component {
         this.counter.addThrow(throwScore);
         this.stat.table.push(throwScore);
 
+        this.skittles.deleteSkittles(throwScore);
+
         this.stat.score = this.counter.getScore();
 
-        if (this.stat.roll == 2 && throwScore + this.counter.throws[this.counter.throws.length-1] == 10)
+        if (this.stat.roll == 2 && throwScore + this.counter.throws[this.counter.throws.length-1] == 10) {
+            this.stat.table[this.stat.table.length-1] += ' /';
             this.stat.spare = true;
+        }
+
+        if (this.stat.roll == 2)
+            setTimeout(() => this.skittles.setSkittles(), 2000);
 
         if (this.stat.roll == 1 && throwScore == 10) {
             this.updateLevel();
             this.counter.addThrow(0);
-            this.stat.table.push('/');
+            this.stat.table.push('x');
             this.stat.strike = true;
         }
 

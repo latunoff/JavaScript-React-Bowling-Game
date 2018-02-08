@@ -1,4 +1,6 @@
 # React-Bowling-Game
+Demo:
+http://ajaxgames.net/bowling/
 
 ## Getting Started
 
