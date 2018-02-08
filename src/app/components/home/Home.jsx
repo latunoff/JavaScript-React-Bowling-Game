@@ -90,7 +90,7 @@ class Home extends Component {
 
         this.stat.score = this.counter.getScore();
 
-        if (this.stat.roll == 2 && throwScore + this.counter.throws[this.counter.throws.length-1] == 10) {
+        if (this.stat.roll == 2 && throwScore + this.counter.throws[this.counter.throws.length-2] == 10) {
             this.stat.table[this.stat.table.length-1] += ' /';
             this.stat.spare = true;
         }
